@@ -5,13 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"api-gateway/internal/config"
 	"api-gateway/internal/logger"
 
 	"github.com/go-chi/chi/v5/middleware"
 )
-
-const pdfService = "http://localhost:8082"
-const downloadService = "http://localhost:8083"
 
 type statusRecorder struct {
 	http.ResponseWriter
@@ -23,24 +21,27 @@ func (r *statusRecorder) WriteHeader(code int) {
 	r.ResponseWriter.WriteHeader(code)
 }
 
-func PdfProxyHandler(log *logger.Logger) http.HandlerFunc {
+func PdfProxyHandler(log *logger.Logger, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestID := middleware.GetReqID(r.Context())
+		target := cfg.PdfService + "/convert/pdf-to-image"
 
 		log.Info("proxying request to pdf service", map[string]any{
 			"request_id": requestID,
-			"target":     pdfService + "/convert/pdf-to-image",
+			"target":     target,
 		})
+
 		req, err := http.NewRequestWithContext(
 			r.Context(),
 			http.MethodPost,
-			pdfService+"/convert/pdf-to-image",
+			target,
 			r.Body,
 		)
 		if err != nil {
 			log.Error("failed to create request", map[string]any{
-				"path":  r.URL.Path,
-				"error": err.Error(),
+				"request_id": requestID,
+				"path":       r.URL.Path,
+				"error":      err.Error(),
 			})
 			http.Error(w, "failed to create request", http.StatusInternalServerError)
 			return
@@ -63,7 +64,7 @@ func PdfProxyHandler(log *logger.Logger) http.HandlerFunc {
 			log.Error("pdf service unavailable", map[string]any{
 				"request_id": requestID,
 				"path":       r.URL.Path,
-				"target":     pdfService,
+				"target":     cfg.PdfService,
 				"error":      err.Error(),
 			})
 			http.Error(w, "pdf service unavailable", http.StatusBadGateway)
@@ -97,10 +98,10 @@ func PdfProxyHandler(log *logger.Logger) http.HandlerFunc {
 	}
 }
 
-func DownloadProxyHandler(log *logger.Logger) http.HandlerFunc {
+func DownloadProxyHandler(log *logger.Logger, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestID := middleware.GetReqID(r.Context())
-		targetURL := downloadService + r.URL.Path
+		targetURL := cfg.DownloadService + r.URL.Path
 
 		log.Info("proxying request to download service", map[string]any{
 			"request_id": requestID,
@@ -115,8 +116,9 @@ func DownloadProxyHandler(log *logger.Logger) http.HandlerFunc {
 		)
 		if err != nil {
 			log.Error("failed to create request", map[string]any{
-				"path":  r.URL.Path,
-				"error": err.Error(),
+				"request_id": requestID,
+				"path":       r.URL.Path,
+				"error":      err.Error(),
 			})
 			http.Error(w, "failed to create request", http.StatusInternalServerError)
 			return
@@ -139,7 +141,7 @@ func DownloadProxyHandler(log *logger.Logger) http.HandlerFunc {
 			log.Error("download service unavailable", map[string]any{
 				"request_id": requestID,
 				"path":       r.URL.Path,
-				"target":     downloadService,
+				"target":     cfg.DownloadService,
 				"error":      err.Error(),
 			})
 			http.Error(w, "download service unavailable", http.StatusBadGateway)

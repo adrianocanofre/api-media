@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"api-gateway/internal/config"
 	"api-gateway/internal/httpserver"
 	"api-gateway/internal/logger"
 
@@ -12,8 +13,10 @@ import (
 )
 
 func main() {
-	log := logger.New("api-gateway")
 
+	cfg := config.LoadConfig()
+
+	log := logger.New(cfg.ServerName)
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -23,14 +26,10 @@ func main() {
 	r.Use(httpserver.LoggerMiddleware(log))
 
 	r.Get("/healthz", httpserver.HealthHandler)
-	r.Post("/pdf/pdf-to-image", httpserver.PdfProxyHandler(log))
-	r.Get("/download/pdf/{filename}", httpserver.DownloadProxyHandler(log))
+	r.Post("/pdf/pdf-to-image", httpserver.PdfProxyHandler(log, cfg))
+	r.Get("/download/pdf/{filename}", httpserver.DownloadProxyHandler(log, cfg))
 
-	log.Info("server started", map[string]any{
-		"addr": ":8080",
-	})
-
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {
 		log.Error("server failed", map[string]any{
 			"error": err.Error(),
 		})
