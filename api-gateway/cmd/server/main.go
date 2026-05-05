@@ -19,6 +19,8 @@ func main() {
 	log := logger.New(cfg.ServerName)
 	r := chi.NewRouter()
 
+	config.PrintStartupConfig(cfg)
+
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)

@@ -36,7 +36,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func PrintStartupConfig(cfg Config) {
+func PrintStartupConfig(cfg *Config) {
 	log.Printf("Server Name: %s", cfg.ServerName)
 	log.Printf("Server Port: %s", cfg.ServerPort)
 
