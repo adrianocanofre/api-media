@@ -24,7 +24,7 @@ func (r *statusRecorder) WriteHeader(code int) {
 func PdfProxyHandler(log *logger.Logger, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestID := middleware.GetReqID(r.Context())
-		target := cfg.PdfService + "/convert/pdf-to-image"
+		target := cfg.PdfService + "/api/v1/convert/pdf-to-image"
 
 		log.Info("proxying request to pdf service", map[string]any{
 			"request_id": requestID,
