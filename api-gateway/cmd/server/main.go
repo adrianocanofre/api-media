@@ -15,11 +15,10 @@ import (
 func main() {
 
 	cfg := config.LoadConfig()
+	config.PrintStartupConfig(cfg)
 
 	log := logger.New(cfg.ServerName)
 	r := chi.NewRouter()
-
-	config.PrintStartupConfig(cfg)
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
