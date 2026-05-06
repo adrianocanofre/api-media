@@ -1,10 +1,10 @@
-package httpserver
+package handlers
 
 import (
 	"net/http"
 	"time"
 
-	"api-gateway/internal/logger"
+	"pdf-converter-service/internal/logger"
 
 	"github.com/go-chi/chi/v5/middleware"
 )

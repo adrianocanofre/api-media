@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"api-gateway/internal/config"
-	"api-gateway/internal/httpserver"
+	"api-gateway/internal/handlers"
 	"api-gateway/internal/logger"
 
 	"github.com/go-chi/chi/middleware"
@@ -24,11 +24,11 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(httpserver.LoggerMiddleware(log))
+	r.Use(handlers.LoggerMiddleware(log))
 
-	r.Get("/healthz", httpserver.HealthHandler)
-	r.Post("/pdf/pdf-to-image", httpserver.PdfProxyHandler(log, cfg))
-	r.Get("/download/pdf/{filename}", httpserver.DownloadProxyHandler(log, cfg))
+	r.Get("/health", handlers.HealthHandler)
+	r.Post("/pdf/pdf-to-image", handlers.PdfProxyHandler(log, cfg))
+	r.Get("/download/pdf/{filename}", handlers.DownloadProxyHandler(log, cfg))
 
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {
 		log.Error("server failed", map[string]any{
