@@ -14,10 +14,15 @@ FROM alpine:3.21
 
 WORKDIR /app
 
+RUN apk add --no-cache poppler-utils
+
+
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=builder /app/app .
 
+RUN mkdir -p /app/downloads && \
+    chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 8081

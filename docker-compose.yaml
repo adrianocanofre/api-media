@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      PDF_SERVICE_URL: http://pdf-converter-service:8081
+    depends_on:
+      - pdf-converter-service
+    networks:
+      - app-network
+
+  pdf-converter-service:
+    build:
+      context: ./pdf-converter-service
+      dockerfile: Dockerfile
+    container_name: pdf-converter-service
+    ports:
+      - "8081:8081"
+    environment:
+      PDF_DOWNLOAD_DIR: /app/downloads
+      API_GATEWAY_URL: http://api-gateway:8080
+    volumes:
+      - pdf_downloads:/app/downloads
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pdf_downloads:
