@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"pdf-converter-service/internal/logger"
+	"download-service/internal/logger"
 
 	"github.com/go-chi/chi/v5/middleware"
 )
