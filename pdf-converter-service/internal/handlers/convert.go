@@ -112,7 +112,7 @@ func (h *Handler) ConvertHandler(log *logger.Logger) http.HandlerFunc {
 				continue
 			}
 
-			url := fmt.Sprintf("http://%s/download/pdf/%s", h.Config.APIGatewayURL, filepath.Base(img))
+			url := fmt.Sprintf("/download/pdf/%s", filepath.Base(img))
 			responses = append(responses, models.DownloadResponse{
 				URL:       url,
 				SizeBytes: info.Size(),

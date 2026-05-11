@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"time"
@@ -87,14 +88,38 @@ func PdfProxyHandler(log *logger.Logger, cfg *config.Config) http.HandlerFunc {
 			})
 		}
 
-		for k, v := range resp.Header {
-			for _, vv := range v {
-				w.Header().Add(k, vv)
-			}
+		type DownloadResponse struct {
+			URL       string `json:"url"`
+			SizeBytes int64  `json:"size_bytes"`
 		}
 
+		var responses []DownloadResponse
+
+		if err := json.NewDecoder(resp.Body).Decode(&responses); err != nil {
+			log.Error("failed to decode pdf service response", map[string]any{
+				"request_id": requestID,
+				"error":      err.Error(),
+			})
+
+			http.Error(w, "invalid response from pdf service", http.StatusBadGateway)
+			return
+		}
+
+		baseURL := cfg.PublicURL
+
+		for i := range responses {
+			responses[i].URL = baseURL + responses[i].URL
+		}
+
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(resp.StatusCode)
-		io.Copy(w, resp.Body)
+
+		if err := json.NewEncoder(w).Encode(responses); err != nil {
+			log.Error("failed to encode gateway response", map[string]any{
+				"request_id": requestID,
+				"error":      err.Error(),
+			})
+		}
 	}
 }
 

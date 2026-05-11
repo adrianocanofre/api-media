@@ -12,6 +12,7 @@ type Config struct {
 	PdfService      string
 	DownloadService string
 	Debug           bool
+	PublicURL       string
 }
 
 func LoadConfig() *Config {
@@ -20,7 +21,7 @@ func LoadConfig() *Config {
 	if debug, err := strconv.ParseBool(getEnv("DEBUG", "false")); err == nil {
 		c.Debug = debug
 	}
-
+	c.PublicURL = getEnv("PUBLIC_URL", "http://localhost:8080")
 	c.ServerName = getEnv("SERVER_NAME", "api-gateway")
 	c.ServerPort = getEnv("SERVER_PORT", "8080")
 	c.PdfService = getEnv("PDF_SERVICE_URL", "http://localhost:8081")
