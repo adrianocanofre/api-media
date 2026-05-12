@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: download-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: download-service
+  template:
+    metadata:
+      labels:
+        app: download-service
+    spec:
+      containers:
+        - name: download-service
+          image: download-service:0.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8082
+          env:
+            - name: PDF_DOWNLOAD_DIR
+              value: /app/downloads
+
+          volumeMounts:
+            - name: pdf-downloads
+              mountPath: /app/downloads
+
+      volumes:
+        - name: pdf-downloads
+          persistentVolumeClaim:
+            claimName: pdf-downloads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: download-service
+spec:
+  selector:
+    app: download-service
+  ports:
+    - port: 8082
+      targetPort: 8082

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdf-converter-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdf-converter-service
+  template:
+    metadata:
+      labels:
+        app: pdf-converter-service
+    spec:
+      containers:
+        - name: pdf-converter-service
+          image: pdf-converter-service:0.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: PDF_DOWNLOAD_DIR
+              value: /app/downloads
+
+            - name: API_GATEWAY_URL
+              value: http://api-gateway:8080
+
+          volumeMounts:
+            - name: pdf-downloads
+              mountPath: /app/downloads
+
+      volumes:
+        - name: pdf-downloads
+          persistentVolumeClaim:
+            claimName: pdf-downloads-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdf-converter-service
+spec:
+  selector:
+    app: pdf-converter-service
+  ports:
+    - port: 8081
+      targetPort: 8081

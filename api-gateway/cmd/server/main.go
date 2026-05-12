@@ -26,6 +26,14 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(handlers.LoggerMiddleware(log))
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		w.Write([]byte(`{
+		"service":"api-gateway",
+		"status":"running"
+	}`))
+	})
 	r.Get("/health", handlers.HealthHandler)
 	r.Post("/pdf/pdf-to-image", handlers.PdfProxyHandler(log, cfg))
 	r.Get("/download/pdf/{filename}", handlers.DownloadProxyHandler(log, cfg))
