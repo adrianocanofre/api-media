@@ -46,12 +46,12 @@ kubectl_version="1.30.0"
 version=$(kubectl version --client 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed 's/v//')
 
 if [ -z "$version" ]; then
-    echo "❌ kubectl not found or version not readable"
+    echo "kubectl not found or version not readable"
     exit 1
 fi
 
 if [ "$(printf '%s\n' "$kubectl_version" "$version" | sort -V | head -n1)" != "$kubectl_version" ]; then
-    echo "❌ kubectl version $version is lower than required $kubectl_version"
+    echo "kubectl version $version is lower than required $kubectl_version"
     exit 1
 fi
 
@@ -62,13 +62,13 @@ kind_version="0.20.0"
 version=$(kind version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed 's/v//')
 
 if [ -z "$version" ]; then
-    echo "❌ kind not installed or version not readable"
+    echo "kind not installed or version not readable"
     exit 1
 fi
 
      
 if [ "$(printf '%s\n' "$kind_version" "$version" | sort -V | head -n1)" != "$kind_version" ]; then
-    echo "❌ kind version $version is lower than required $kind_version"
+    echo "kind version $version is lower than required $kind_version"
     exit 1
 fi
 
@@ -80,12 +80,12 @@ docker_version="27.0.0"
 version=$(docker version --format '{{.Client.Version}}' 2>/dev/null)
 
 if [ -z "$version" ]; then
-    echo "❌ docker not installed or version not readable"
+    echo "docker not installed or version not readable"
     exit 1
 fi
 
 if [ "$(printf '%s\n' "$docker_version" "$version" | sort -V | head -n1)" != "$docker_version" ]; then
-    echo "❌ docker version $version is lower than required $docker_version"
+    echo "docker version $version is lower than required $docker_version"
     exit 1
 fi
 
@@ -100,11 +100,13 @@ if [ "$ACTION" = "start" ]; then
 
     echo "=================================================="
     echo "Build docker images"
+    cd services
 
     docker build -t api-gateway:0.0.1 api-gateway
     docker build -t download-service:0.0.1 download-service
     docker build -t pdf-converter-service:0.0.1 pdf-converter-service
 
+    cd ..  
     echo "=================================================="
     echo "Create k8s cluster"
     kind create cluster --name "$CLUSTER_NAME" --config iac/kind.yaml

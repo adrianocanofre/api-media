@@ -3,7 +3,7 @@ version: "3.9"
 services:
   api-gateway:
     build:
-      context: ./api-gateway
+      context: ./services/api-gateway
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:
@@ -18,7 +18,7 @@ services:
 
   pdf-converter-service:
     build:
-      context: ./pdf-converter-service
+      context: ./services/pdf-converter-service
       dockerfile: Dockerfile
     container_name: pdf-converter-service
     ports:
@@ -33,7 +33,7 @@ services:
 
   download-service:
     build:
-      context: ./download-service
+      context: ./services/download-service
       dockerfile: Dockerfile
     container_name: download-service
     ports:
